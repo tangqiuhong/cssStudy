@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            text-align: center;
+        }
+        .loading {
+            margin: 10px auto;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: #e8e8e8;
+            position: relative;
+        }
+        .left, .right {
+            width: 50%;
+            height: 100%;
+            float: left;
+            position: relative;
+            overflow: hidden;
+        }
+        .left span, .right span {
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: red;
+            transition: all 0.4s;
+        }
+        .left span {
+            border-radius: 150px 0 0 150px;
+            transform-origin: right;
+            transform: rotateZ(-180deg);
+        }
+        .right span {
+            border-radius: 0 150px 150px 0;
+            transform-origin: left;
+            transform: rotateZ(-180deg);
+        }
+        .progress {
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            line-height: 130px;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+        }
+        .btns {
+            height: 30px;
+            margin: 0 auto;
+            display: inline-block;
+            font-size: 0;
+        }
+        .btns button{
+            width: 30px;
+            height: 100%;
+            border: 1px solid #cccccc;
+            background-color: #fff;
+            cursor: pointer;
+            outline: none;
+        }
+        .btns input {
+            height: 30px;
+            padding: 0 10px;
+            width: 80px;
+            text-align: center;
+            outline: none;
+            box-sizing: border-box;
+            border-left: none;
+            border-right: none;
+            border: 1px solid #ccc;
+        }
+        
+		 .btns input {
+			height: 30px;
+			border: 1px solid #CCC;
+			box-sizing: border-box;
+			outline: none;
+			padding: 0 10px;
+			width: 80px;
+			text-align: center;
+			border-left: none;
+			border-right: none; 
+		}
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <div class="left">
+            <span></span>
+        </div>
+        <div class="right">
+            <span></span>
+        </div>
+        <div class="progress">
+            <span>0</span>
+        </div>
+    </div>
+    <div class="btns">
+        <button class="reduce" onclick="reduce()">-</button>
+        <input type="text" id="num" value="0" />
+        <button class="add" onclick="add()">+</button>
+    </div>
+</body>
+<script>
+    function Circle() {}
+    Circle.prototype = {
+        defaultOptions: {
+            percentage: 0,
+            total: 100,
+            step: 10,
+        },
+        init: function(options) {
+            if(typeof options == "undefined") {
+                options = this.defaultOptions;
+            } else {
+                options.step = options.step||this.defaultOptions.step;
+                this.defaultOptions.step = options.step;
+                options.total = options.total||this.defaultOptions.total;
+                this.defaultOptions.total = options.total;
+                options.percentage = options.percentage||this.defaultOptions.percentage;
+                this.defaultOptions.percentage = options.percentage;
+            }
+            this.Dom = options.Dom || document.getElementsByClassName("loading")[0];
+            this.percentage = Number(options.percentage);
+            this.total = Number(options.total);
+            this.step = Number(options.step);
+            this.percentage = this.percentage > this.total ? this.total : this.percentage;
+            this.step = this.step > this.total ? this.total: this.step;
+            this.setProgress();
+        },
+        add: function () {
+            this.percentage += this.step;
+            this.percentage = this.percentage > this.total ? this.total : this.percentage;
+            this.setProgress();
+        },
+        reduce: function () {
+            this.percentage -= this.step;
+            this.percentage = this.percentage < 0 ? 0 : this.percentage;
+            this.setProgress();
+        },
+        setProgress: function (percentage) {
+            this.percentage = Number(percentage) || this.percentage;
+            this.left = this.percentage > (this.total / 2) ? this.percentage - this.total / 2: 0;
+            this.right = this.percentage > (this.total / 2) ? this.total / 2: this.percentage;
+            this.getDom("left").style.transform = "rotateZ("+ this.setDeg(this.left) +"deg)";
+            this.getDom("right").style.transform = "rotateZ("+ this.setDeg(this.right) +"deg)";
+            this.getDom("progress").innerText  = this.percentage;
+        }, 
+        getDom: function (className) {
+            return (this.Dom).getElementsByClassName(className)[0].getElementsByTagName("span")[0];
+        },
+        setDeg: function (deg) {
+            return 360 / this.total * deg - 180;
+        }
+        
+    };
+    var  circle = new Circle();
+    circle.init({step:5});
+    var inputDom = document.getElementById("num");
+    inputDom.onchange = function () {
+        inputDom.value = Number(inputDom.value) > 100 ? 100 : Number(inputDom.value);
+        circle.setProgress(inputDom.value);
+    }
+    function add() {
+        console.log(circle.defaultOptions)
+        inputDom.value = Number(inputDom.value) + Number(circle.defaultOptions.step) > 100 ? 100 : Number(inputDom.value) + Number(circle.defaultOptions.step);
+        circle.add();
+    }
+    function reduce() {
+        inputDom.value = Number(inputDom.value) - Number(circle.defaultOptions.step) < 0 ? 0 : Number(inputDom.value) - Number(circle.defaultOptions.step);
+        circle.reduce();
+    }
+</script>
+</html>
